@@ -2,14 +2,12 @@ package com.bracketcove.graphsudoku.persistence
 
 import com.bracketcove.graphsudoku.computationlogic.puzzleIsComplete
 import com.bracketcove.graphsudoku.domain.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class GameRepositoryImpl(
     private val gameStorage: IGameDataStorage,
     private val settingsStorage: ISettingsStorage
 ) : IGameRepository {
+
     override suspend fun saveGame(
         elapsedTime: Long, onSuccess: (Unit) -> Unit,
         onError: (Exception) -> Unit
@@ -22,7 +20,7 @@ class GameRepositoryImpl(
                     )
                 )
 
-                onSuccess.invoke(Unit)
+                onSuccess(Unit)
             }
             is GameStorageResult.OnError -> {
                 onError.invoke(getCurrentGameResult.exception)
@@ -30,9 +28,6 @@ class GameRepositoryImpl(
         }
     }
 
-    /**
-     * Pretty simple here
-     */
     override suspend fun updateGame(
         game: SudokuPuzzle,
         onSuccess: (Unit) -> Unit,
@@ -44,9 +39,6 @@ class GameRepositoryImpl(
         }
     }
 
-    /**
-     * Here we care whether or not
-     */
     override suspend fun updateNode(
         x: Int,
         y: Int,
@@ -139,13 +131,13 @@ class GameRepositoryImpl(
     }
 
     private suspend fun createAndWriteNewGame(settings: Settings): GameStorageResult {
-            return gameStorage.updateGame(
-                SudokuPuzzle(
-                    settings.boundary,
-                    settings.difficulty
-                )
+        return gameStorage.updateGame(
+            SudokuPuzzle(
+                settings.boundary,
+                settings.difficulty
             )
-        }
+        )
+    }
 
 
     override suspend fun getSettings(onSuccess: (Settings) -> Unit, onError: (Exception) -> Unit) {
